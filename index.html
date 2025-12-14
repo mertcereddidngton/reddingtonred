@@ -74,22 +74,16 @@ document.addEventListener('DOMContentLoaded', () => {
   let running = false;
   let spawnTimer;
 
-  // SES HAVUZU - pipet toplama sesi
-  const pool = [];
-  const POOL_SIZE = 5;
-  for(let i=0; i<POOL_SIZE; i++){
-    pool.push(new Audio('collect.mp3'));
-  }
-  let poolIndex = 0;
-  function playCollect(){
-    const sound = pool[poolIndex];
-    sound.currentTime = 0;
-    sound.play();
-    poolIndex = (poolIndex + 1) % POOL_SIZE;
-  }
-
-  // oyun bitiş sesi
+  // Oyun bitiş sesi
   const gameOverSound = new Audio('gameover.mp3');
+
+  // İlk dokunuşla ses izni açmak (mobil uyumluluk)
+  function enableAudioOnMobile(){
+    const test = new Audio('collect.mp3');
+    test.play().catch(()=>{}); // boş çalma ile izin açılır
+    document.removeEventListener('touchstart', enableAudioOnMobile);
+  }
+  document.addEventListener('touchstart', enableAudioOnMobile);
 
   startBtn.addEventListener('click', startGame);
 
@@ -136,8 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
         score++;
         scoreText.textContent = `Puan: ${score} | Kaçan: ${misses}`;
 
-        // havuzlu ses çal
-        playCollect();
+        // HER pipet için yeni Audio nesnesi (mobilde kesilme yok)
+        const collectSound = new Audio('collect.mp3');
+        collectSound.play();
 
         const flash = document.createElement('div');
         flash.style.position='absolute';
@@ -189,3 +184,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
